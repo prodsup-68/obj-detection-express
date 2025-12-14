@@ -1,6 +1,6 @@
 import debug from "debug";
-import tf from "@tensorflow/tfjs";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
+// import tf from "@tensorflow/tfjs";
+// import * as cocoSsd from "@tensorflow-models/coco-ssd";
 import "dotenv/config";
 import fs from "fs";
 // @ts-ignore
@@ -8,7 +8,7 @@ import * as PImage from "pureimage";
 import sharp from "sharp";
 import { Readable } from "stream";
 import promisify from "util.promisify";
-import { PORT, SERVER_URL } from "./utils/env";
+import { PORT, SERVER_URL } from "./utils/env.js";
 
 const logger = debug("myapp");
 const readFile = promisify(fs.readFile);

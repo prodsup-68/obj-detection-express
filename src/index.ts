@@ -1,18 +1,17 @@
 import "dotenv/config";
 import cors from "cors";
 import debug from "debug";
-import express, { ErrorRequestHandler } from "express";
+import express, { type ErrorRequestHandler } from "express";
 import multer from "multer";
-
-import {
-  loadModel,
-  readImageFile,
-  predict,
-  annotateImage,
-  writeImageFile,
-  readImageEncoded,
-  getClassCounts,
-} from "./ml.js";
+import { loadModel, predict } from "./ml2.js";
+// import {
+//   readImageFile,
+//   // predict,
+//   annotateImage,
+//   writeImageFile,
+//   readImageEncoded,
+//   getClassCounts,
+// } from "./ml.js";
 import { PORT } from "./utils/env.js";
 
 let global: { model: any } = { model: null };
@@ -43,15 +42,18 @@ app.post("/upload", upload.single("img"), async (req, res, next) => {
     if (!global.model) await loadModel(global);
     const contentType = req.file?.mimetype ?? "";
     const filePath = req.file?.path ?? "";
-    const imageBitmap = await readImageFile(filePath, contentType);
+    logger(filePath, contentType);
+    // const imageBitmap = await readImageFile(filePath, contentType);
     if (!global.model) {
       throw new Error("No model loaded");
     }
-    const predictions = await predict(imageBitmap, global.model);
-    const { countsArr, countsObj } = getClassCounts(predictions);
-    annotateImage(imageBitmap, predictions);
-    const imageURL = await writeImageFile(imageBitmap);
-    res.json({ predictions, imageURL, countsArr, countsObj });
+    // const predictions = await predict(filePath, global.model);
+    // const { countsArr, countsObj } = getClassCounts(predictions);
+    // annotateImage(imageBitmap, predictions);
+    // const imageURL = await writeImageFile(imageBitmap);
+    // res.json({ predictions, imageURL, countsArr, countsObj });
+    // res.json({ predictions });
+    res.json({ message: "Upload endpoint working" });
   } catch (err) {
     next(err);
   }
@@ -61,12 +63,12 @@ app.post("/upload_base64", async (req, res, next) => {
   try {
     if (!global.model) await loadModel(global);
     const imageEncoded = req.body.imageEncoded ?? "";
-    const imageBitmap = await readImageEncoded(imageEncoded);
-    const predictions = await predict(imageBitmap, global.model);
-    const { countsArr, countsObj } = getClassCounts(predictions);
-    annotateImage(imageBitmap, predictions);
-    const imageURL = await writeImageFile(imageBitmap);
-    res.json({ predictions, imageURL, countsArr, countsObj });
+    // const imageBitmap = await readImageEncoded(imageEncoded);
+    const predictions = await predict(imageEncoded, global.model);
+    // const { countsArr, countsObj } = getClassCounts(predictions);
+    // annotateImage(imageBitmap, predictions);
+    // const imageURL = await writeImageFile(imageBitmap);
+    // res.json({ predictions, imageURL, countsArr, countsObj });
   } catch (err) {
     next(err);
   }
