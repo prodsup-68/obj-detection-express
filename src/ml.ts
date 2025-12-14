@@ -8,7 +8,7 @@ import * as PImage from "pureimage";
 import sharp from "sharp";
 import { Readable } from "stream";
 import promisify from "util.promisify";
-import { PORT, SERVER_URL } from "./utils/env.js";
+import { PORT, SERVER_URL } from "./utils/env.ts";
 
 const logger = debug("myapp");
 const readFile = promisify(fs.readFile);
@@ -21,17 +21,22 @@ const font = PImage.registerFont(
 );
 font.loadSync();
 
+import { pipeline } from "@huggingface/transformers";
+
 export async function loadModel(global: any) {
-  await tf.ready();
-  const modelUrl = `http://localhost:${PORT}/static/coco-ssd/model.json`;
-  const model = await cocoSsd.load({
-    base: "lite_mobilenet_v2", //Fastest
-    // base: "mobilenet_v2", // Default
-    modelUrl: modelUrl,
-  });
-  global.model = model;
+  const detector = await pipeline(
+    "object-detection",
+    "Xenova/table-transformer-structure-recognition"
+  );
+
+  global.model = detector;
   logger("Load model successfully");
 }
+export const predict = async (filepath: any, model: any) => {
+  const results = await model(filepath, { threshold: 0.9 });
+  logger(results);
+  return results;
+};
 
 export const bufferToStream = (binary: Buffer) => {
   const readableInstanceStream = new Readable({
@@ -53,12 +58,7 @@ export async function readImageFile(filePath: string, contentType: string) {
   return imageBitmap;
 }
 
-export const predict = async (imageBitmap: any, model: any) => {
-  const predictions = await model.detect(imageBitmap);
-  return predictions as cocoSsd.DetectedObject[];
-};
-
-export const getClassCounts = (predictions: cocoSsd.DetectedObject[]) => {
+export const getClassCounts = (predictions: any[]) => {
   const countsObj = {} as any;
 
   predictions.forEach((pred) => {
@@ -82,10 +82,7 @@ export const getClassCounts = (predictions: cocoSsd.DetectedObject[]) => {
   return { countsObj, countsArr };
 };
 
-export function annotateImage(
-  imageBitmap: any,
-  predictions: cocoSsd.DetectedObject[]
-) {
+export function annotateImage(imageBitmap: any, predictions: any[]) {
   // Validation
   const ctx = imageBitmap.getContext("2d");
   if (!ctx) return;
@@ -100,7 +97,7 @@ export function annotateImage(
   }
 }
 
-function drawBox(prediction: cocoSsd.DetectedObject, ctx: any) {
+function drawBox(prediction: any, ctx: any) {
   let bboxLeft = prediction.bbox[0];
   let bboxTop = prediction.bbox[1];
   let bboxWidth = prediction.bbox[2];
