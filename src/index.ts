@@ -3,18 +3,16 @@ import cors from "cors";
 import debug from "debug";
 import multer from "multer";
 import express, { type ErrorRequestHandler } from "express";
-import {
-  loadModel,
-  predict,
-  getClassCounts,
-  annotateImage,
-  writeImageFile,
-  readImageFile,
-} from "./ml.ts";
+import { loadModel, predict, getClassCounts } from "./ml.js";
+import { annotateImage, writeImageFile, readImageFile } from "./images.js";
+import { createDirectory } from "./utils/dir.js";
 import { PORT } from "./utils/env.js";
 
 let global: { model: any } = { model: null };
 const logger = debug("myapp");
+
+createDirectory("uploads");
+createDirectory("public");
 
 const app = express();
 const upload = multer({ dest: "uploads/" });

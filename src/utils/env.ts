@@ -10,3 +10,4 @@ if (!["production", "development"].includes(NODE_ENV)) {
 
 export const PORT = process.env.BACKEND_PORT ?? "3004";
 export const SERVER_URL = process.env.SERVER_URL ?? "http://localhost";
+export const MODEL = process.env.MODEL ?? "Xenova/detr-resnet-50";
